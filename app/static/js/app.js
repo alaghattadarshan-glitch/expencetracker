@@ -177,11 +177,13 @@ function initNavigation() {
 
 function formatCurrency(amount) {
     const num = Number(amount) || 0;
-    // Format according to Indian number system (lakhs, crores) if INR or locale
-    return state.currency + num.toLocaleString('en-IN', {
+    const isNegative = num < 0;
+    const absNum = Math.abs(num);
+    const formatted = absNum.toLocaleString('en-IN', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
+    return isNegative ? `-${state.currency}${formatted}` : `${state.currency}${formatted}`;
 }
 
 function formatDate(dateString) {
@@ -267,7 +269,19 @@ async function loadDashboard() {
         const data = await response.json();
 
         // 1. Update Summary Cards
-        document.getElementById('cardTotalBalance').textContent = formatCurrency(data.summary.total_balance);
+        const balanceEl = document.getElementById('cardTotalBalance');
+        if (balanceEl) {
+            balanceEl.textContent = formatCurrency(data.summary.total_balance);
+            if (data.summary.total_balance < 0) {
+                balanceEl.classList.add('text-expense');
+                balanceEl.classList.remove('text-income');
+            } else if (data.summary.total_balance > 0) {
+                balanceEl.classList.add('text-income');
+                balanceEl.classList.remove('text-expense');
+            } else {
+                balanceEl.classList.remove('text-expense', 'text-income');
+            }
+        }
         document.getElementById('cardTotalIncome').textContent = formatCurrency(data.summary.monthly_income);
         document.getElementById('cardTotalExpense').textContent = formatCurrency(data.summary.monthly_expense);
         document.getElementById('cardRemainingBudget').textContent = formatCurrency(data.summary.remaining_budget);
