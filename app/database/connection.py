@@ -4,13 +4,15 @@ from pymysql.cursors import DictCursor
 import time
 from urllib.parse import urlparse
 
+import re
+
 def safe_int_port(port_val, default=3306):
     """Safely converts port value to int, handling empty strings or invalid values."""
     if port_val is None:
         return default
     try:
         val_str = str(port_val).strip()
-        return int(val_str) if val_str else default
+        return int(val_str) if val_str.isdigit() else default
     except (ValueError, TypeError):
         return default
 
@@ -18,23 +20,49 @@ def parse_db_url():
     """
     Parses DATABASE_URL (or MYSQL_URL) if provided by cloud providers like Render,
     TiDB Cloud, Aiven, or Railway.
-    Format: mysql://user:password@host:port/database?ssl=...
+    Safely handles literal placeholders (e.g. host:port) without throwing ValueError.
     """
     db_url = os.getenv('DATABASE_URL') or os.getenv('MYSQL_URL')
     if not db_url:
         return None
 
-    # Handle standard url schemes
-    if db_url.startswith("mysql://") or db_url.startswith("mysql2://"):
-        parsed = urlparse(db_url)
+    db_url = db_url.strip()
+    if not (db_url.startswith("mysql://") or db_url.startswith("mysql2://")):
+        return None
+
+    # Pre-clean any literal placeholder ":port" before urlparse to prevent ValueError
+    # e.g. "mysql://user:pass@host:port/db" -> replace literal ":port" with ":3306"
+    cleaned_url = re.sub(r':port(?=[/?#]|$)', ':3306', db_url, flags=re.IGNORECASE)
+
+    try:
+        parsed = urlparse(cleaned_url)
+        # Avoid accessing parsed.port directly if it throws
+        netloc = parsed.netloc
+        host = parsed.hostname or 'localhost'
+        port = 3306
+
+        # Extract port safely from netloc
+        if '@' in netloc:
+            host_port_part = netloc.split('@', 1)[1]
+        else:
+            host_port_part = netloc
+
+        if ':' in host_port_part:
+            raw_p = host_port_part.split(':', 1)[1]
+            # Strip path/query if present
+            raw_p = re.split(r'[/\\?#]', raw_p)[0]
+            port = safe_int_port(raw_p, 3306)
+
         return {
-            'host': parsed.hostname or 'localhost',
-            'port': safe_int_port(parsed.port, 3306),
+            'host': host,
+            'port': port,
             'user': parsed.username or 'root',
             'password': parsed.password or '',
             'database': parsed.path.lstrip('/') if parsed.path else 'expense_tracker'
         }
-    return None
+    except Exception as e:
+        print(f"[Database] Warning: Failed to parse DATABASE_URL ({e}), falling back to standard config.")
+        return None
 
 def get_connection_params(config=None):
     parsed = parse_db_url()
