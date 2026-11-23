@@ -4,6 +4,16 @@ from pymysql.cursors import DictCursor
 import time
 from urllib.parse import urlparse
 
+def safe_int_port(port_val, default=3306):
+    """Safely converts port value to int, handling empty strings or invalid values."""
+    if port_val is None:
+        return default
+    try:
+        val_str = str(port_val).strip()
+        return int(val_str) if val_str else default
+    except (ValueError, TypeError):
+        return default
+
 def parse_db_url():
     """
     Parses DATABASE_URL (or MYSQL_URL) if provided by cloud providers like Render,
@@ -18,11 +28,11 @@ def parse_db_url():
     if db_url.startswith("mysql://") or db_url.startswith("mysql2://"):
         parsed = urlparse(db_url)
         return {
-            'host': parsed.hostname,
-            'port': parsed.port or 3306,
-            'user': parsed.username,
+            'host': parsed.hostname or 'localhost',
+            'port': safe_int_port(parsed.port, 3306),
+            'user': parsed.username or 'root',
             'password': parsed.password or '',
-            'database': parsed.path.lstrip('/')
+            'database': parsed.path.lstrip('/') if parsed.path else 'expense_tracker'
         }
     return None
 
@@ -30,27 +40,29 @@ def get_connection_params(config=None):
     parsed = parse_db_url()
     if parsed:
         host = parsed['host']
-        port = parsed['port']
+        port = safe_int_port(parsed['port'], 3306)
         user = parsed['user']
         password = parsed['password']
         database = parsed['database']
     else:
         host = os.getenv('DB_HOST', 'localhost')
-        port = int(os.getenv('DB_PORT', 3306))
+        # Guard against Render injecting PORT or empty DB_PORT string
+        raw_port = os.getenv('DB_PORT') or 3306
+        port = safe_int_port(raw_port, 3306)
         user = os.getenv('DB_USER', 'expense_user')
         password = os.getenv('DB_PASSWORD', 'expense_password')
         database = os.getenv('DB_NAME', 'expense_tracker')
 
     if config:
         host = config.get('DB_HOST', host)
-        port = config.get('DB_PORT', port)
+        port = safe_int_port(config.get('DB_PORT', port), 3306)
         user = config.get('DB_USER', user)
         password = config.get('DB_PASSWORD', password)
         database = config.get('DB_NAME', database)
 
     # SSL configuration for managed cloud databases (TiDB, Aiven, PlanetScale, Render)
     ssl_config = None
-    use_ssl = os.getenv('DB_SSL', 'false').lower() in ('true', '1', 'yes') or 'tidbcloud' in host.lower() or 'aiven' in host.lower()
+    use_ssl = os.getenv('DB_SSL', 'false').lower() in ('true', '1', 'yes') or 'tidbcloud' in str(host).lower() or 'aiven' in str(host).lower()
     if use_ssl:
         ssl_config = {'ssl': {}}
 
