@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Expense Tracker</title>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN for responsive charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-title">ExpenseTracker</span>
+                        <span class="brand-tag">DevOps Edition</span>
+                    </div>
+                </div>
+                <button class="btn-icon mobile-close" id="sidebarCloseBtn" aria-label="Close sidebar">✕</button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="nav-item active" data-page="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9"></rect>
+                        <rect x="14" y="3" width="7" height="5"></rect>
+                        <rect x="14" y="12" width="7" height="9"></rect>
+                        <rect x="3" y="16" width="7" height="5"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#transactions" class="nav-item" data-page="transactions">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    <span>Transactions</span>
+                </a>
+                <a href="#add-transaction" class="nav-item" data-page="add-transaction">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    <span>Add Transaction</span>
+                </a>
+                <a href="#budget" class="nav-item" data-page="budget">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    <span>Budget</span>
+                </a>
+                <a href="#analytics" class="nav-item" data-page="analytics">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18"></path>
+                        <path d="m19 9-5 5-4-4-3 3"></path>
+                    </svg>
+                    <span>Analytics</span>
+                </a>
+                <a href="#settings" class="nav-item" data-page="settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar" id="avatarInitial">U</div>
+                    <div class="user-info">
+                        <span class="user-name" id="userDisplayName">User</span>
+                        <span class="user-role">Personal Account</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="btn-icon mobile-menu-toggle" id="sidebarOpenBtn" aria-label="Open menu">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="topbar-right">
+                    <span class="date-badge" id="currentDateDisplay">-- --- ----</span>
+                    <button class="btn btn-primary btn-sm" id="quickAddBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>New Transaction</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Notification Toast Container -->
+            <div id="toastContainer" class="toast-container"></div>
+
+            <!-- Page Sections Container -->
+            <div class="content-body">
+
+                <!-- 1. DASHBOARD SECTION -->
+                <section id="section-dashboard" class="page-section active">
+                    <!-- Summary Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Total Balance</span>
+                                <div class="stat-icon icon-balance">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="cardTotalBalance">₹0.00</div>
+                            <div class="stat-footer">
+                                <span class="badge" id="savingsRateBadge">0% savings rate</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Income This Month</span>
+                                <div class="stat-icon icon-income">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                                        <polyline points="5 12 12 5 19 12"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="stat-value text-income" id="cardTotalIncome">₹0.00</div>
+                            <div class="stat-footer text-muted" id="incomeSubtitle">Current month</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Expenses This Month</span>
+                                <div class="stat-icon icon-expense">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <polyline points="19 12 12 19 5 12"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="stat-value text-expense" id="cardTotalExpense">₹0.00</div>
+                            <div class="stat-footer text-muted" id="expenseSubtitle">Current month</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Remaining Budget</span>
+                                <div class="stat-icon icon-budget">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="cardRemainingBudget">₹0.00</div>
+                            <div class="stat-footer" id="budgetProgressWrapper">
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="cardBudgetBar" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-text" id="cardBudgetPercentage">0% used</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="dashboard-grid">
+                        <div class="card chart-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Income vs Expenses (Last 6 Months)</h3>
+                            </div>
+                            <div class="card-body chart-container">
+                                <canvas id="chartIncomeVsExpense"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card chart-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Spending by Category</h3>
+                            </div>
+                            <div class="card-body chart-container">
+                                <canvas id="chartCategoryDoughnut"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Transactions & Budget Progress -->
+                    <div class="dashboard-bottom-grid">
+                        <div class="card table-card">
+                            <div class="card-header flex-between">
+                                <h3 class="card-title">Recent Transactions</h3>
+                                <a href="#transactions" class="btn-link">View all →</a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table" id="recentTransactionsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>Category</th>
+                                                <th>Date</th>
+                                                <th class="text-right">Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recentTransactionsBody">
+                                            <tr><td colspan="4" class="text-center text-muted py-4">Loading transactions...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card budget-preview-card">
+                            <div class="card-header flex-between">
+                                <h3 class="card-title">Budget Health</h3>
+                                <a href="#budget" class="btn-link">Manage →</a>
+                            </div>
+                            <div class="card-body" id="dashboardBudgetList">
+                                <div class="text-muted text-center py-4">Loading budget health...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. TRANSACTIONS SECTION -->
+                <section id="section-transactions" class="page-section">
+                    <div class="card">
+                        <!-- Filters Header -->
+                        <div class="card-header transaction-controls">
+                            <div class="search-box">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <input type="text" id="filterSearch" placeholder="Search by title or description..." />
+                            </div>
+
+                            <div class="filters-row">
+                                <select id="filterType" class="form-control form-select">
+                                    <option value="">All Types</option>
+                                    <option value="Income">Income</option>
+                                    <option value="Expense">Expense</option>
+                                </select>
+
+                                <select id="filterCategory" class="form-control form-select">
+                                    <option value="">All Categories</option>
+                                    <!-- Populated dynamically via JS -->
+                                </select>
+
+                                <input type="date" id="filterStartDate" class="form-control" title="Start date">
+                                <input type="date" id="filterEndDate" class="form-control" title="End date">
+
+                                <select id="filterSort" class="form-control form-select">
+                                    <option value="date_desc">Newest First</option>
+                                    <option value="date_asc">Oldest First</option>
+                                    <option value="amount_desc">Highest Amount</option>
+                                    <option value="amount_asc">Lowest Amount</option>
+                                </select>
+
+                                <button class="btn btn-secondary" id="resetFiltersBtn" title="Reset all filters">Reset</button>
+                            </div>
+                        </div>
+
+                        <!-- Transactions Table -->
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table" id="transactionsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Title</th>
+                                            <th>Type</th>
+                                            <th>Category</th>
+                                            <th>Description</th>
+                                            <th class="text-right">Amount</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactionsTableBody">
+                                        <tr><td colspan="7" class="text-center text-muted py-4">No transactions found.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Pagination Footer -->
+                        <div class="card-footer flex-between">
+                            <div class="pagination-info" id="paginationInfo">Showing 0 of 0 transactions</div>
+                            <div class="pagination-buttons">
+                                <button class="btn btn-secondary btn-sm" id="prevPageBtn" disabled>Previous</button>
+                                <span class="page-number" id="pageNumber">1</span>
+                                <button class="btn btn-secondary btn-sm" id="nextPageBtn" disabled>Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. ADD / EDIT TRANSACTION SECTION -->
+                <section id="section-add-transaction" class="page-section">
+                    <div class="form-card-container">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title" id="transactionFormTitle">Add New Transaction</h3>
+                                <p class="card-subtitle">Fill in the transaction details to record your financial activity</p>
+                            </div>
+                            <div class="card-body">
+                                <form id="transactionForm" novalidate>
+                                    <input type="hidden" id="editTransactionId" value="">
+
+                                    <!-- Type Toggle -->
+                                    <div class="form-group">
+                                        <label class="form-label">Transaction Type <span class="required">*</span></label>
+                                        <div class="type-toggle-group">
+                                            <label class="toggle-option toggle-expense active" id="toggleExpenseLabel">
+                                                <input type="radio" name="transactionType" value="Expense" checked>
+                                                <span>Expense</span>
+                                            </label>
+                                            <label class="toggle-option toggle-income" id="toggleIncomeLabel">
+                                                <input type="radio" name="transactionType" value="Income">
+                                                <span>Income</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Title & Amount -->
+                                    <div class="form-row">
+                                        <div class="form-group flex-1">
+                                            <label for="transactionTitle" class="form-label">Title <span class="required">*</span></label>
+                                            <input type="text" id="transactionTitle" class="form-control" placeholder="e.g., Grocery Shopping, Monthly Salary" required maxlength="150">
+                                            <span class="field-error" id="titleError"></span>
+                                        </div>
+
+                                        <div class="form-group flex-1">
+                                            <label for="transactionAmount" class="form-label">Amount (₹) <span class="required">*</span></label>
+                                            <input type="number" id="transactionAmount" class="form-control" placeholder="0.00" step="0.01" min="0.01" required>
+                                            <span class="field-error" id="amountError"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Category & Date -->
+                                    <div class="form-row">
+                                        <div class="form-group flex-1">
+                                            <label for="transactionCategory" class="form-label">Category <span class="required">*</span></label>
+                                            <select id="transactionCategory" class="form-control form-select" required>
+                                                <!-- Populated dynamically based on Expense/Income -->
+                                            </select>
+                                            <span class="field-error" id="categoryError"></span>
+                                        </div>
+
+                                        <div class="form-group flex-1">
+                                            <label for="transactionDate" class="form-label">Date <span class="required">*</span></label>
+                                            <input type="date" id="transactionDate" class="form-control" required>
+                                            <span class="field-error" id="dateError"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="form-group">
+                                        <label for="transactionDescription" class="form-label">Description (Optional)</label>
+                                        <textarea id="transactionDescription" class="form-control" rows="3" placeholder="Add notes, merchant info, or receipt details..."></textarea>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary" id="saveTransactionBtn">Save Transaction</button>
+                                        <button type="button" class="btn btn-secondary" id="cancelTransactionBtn">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. BUDGET MANAGEMENT SECTION -->
+                <section id="section-budget" class="page-section">
+                    <div class="budget-layout">
+                        <!-- Left: Budget Setup Card -->
+                        <div class="card budget-form-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Set Budget</h3>
+                                <p class="card-subtitle">Define monthly limits to keep your expenses in check</p>
+                            </div>
+                            <div class="card-body">
+                                <form id="budgetForm">
+                                    <input type="hidden" id="editBudgetId" value="">
+                                    <div class="form-group">
+                                        <label for="budgetCategory" class="form-label">Category / Scope <span class="required">*</span></label>
+                                        <select id="budgetCategory" class="form-control form-select" required>
+                                            <option value="Overall">Overall Total Budget</option>
+                                            <!-- Dynamically populated with Expense categories -->
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="budgetLimit" class="form-label">Monthly Limit (₹) <span class="required">*</span></label>
+                                        <input type="number" id="budgetLimit" class="form-control" placeholder="e.g. 15000" step="100" min="1" required>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group flex-1">
+                                            <label for="budgetMonth" class="form-label">Month</label>
+                                            <select id="budgetMonth" class="form-control form-select">
+                                                <option value="1">January</option>
+                                                <option value="2">February</option>
+                                                <option value="3">March</option>
+                                                <option value="4">April</option>
+                                                <option value="5">May</option>
+                                                <option value="6">June</option>
+                                                <option value="7">July</option>
+                                                <option value="8">August</option>
+                                                <option value="9">September</option>
+                                                <option value="10">October</option>
+                                                <option value="11">November</option>
+                                                <option value="12">December</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group flex-1">
+                                            <label for="budgetYear" class="form-label">Year</label>
+                                            <input type="number" id="budgetYear" class="form-control" value="2026" min="2020" max="2050">
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary w-100" id="saveBudgetBtn">Save Budget</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Right: Budget Cards & Progress Tracker -->
+                        <div class="budget-tracker-container">
+                            <div class="card">
+                                <div class="card-header flex-between">
+                                    <div>
+                                        <h3 class="card-title">Budget Progress Overview</h3>
+                                        <p class="card-subtitle" id="budgetMonthLabel">Current Month Tracking</p>
+                                    </div>
+                                    <div class="badge-legend">
+                                        <span class="legend-dot dot-normal"></span> Normal
+                                        <span class="legend-dot dot-warning"></span> &gt;80%
+                                        <span class="legend-dot dot-danger"></span> Exceeded
+                                    </div>
+                                </div>
+                                <div class="card-body" id="budgetCardsList">
+                                    <div class="text-center text-muted py-4">Loading budgets...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. ANALYTICS SECTION -->
+                <section id="section-analytics" class="page-section">
+                    <!-- Key Analytics Metric Cards -->
+                    <div class="stats-grid mb-4">
+                        <div class="stat-card">
+                            <span class="stat-label">Total Savings</span>
+                            <div class="stat-value text-income" id="analyticsTotalSavings">₹0.00</div>
+                            <span class="stat-footer text-muted" id="analyticsSavingsRate">Savings Rate: 0%</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Highest Spending Category</span>
+                            <div class="stat-value" id="analyticsTopCategory">None</div>
+                            <span class="stat-footer text-muted" id="analyticsTopCategoryAmount">₹0.00</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Avg. Daily Expense</span>
+                            <div class="stat-value text-expense" id="analyticsDailyAvg">₹0.00</div>
+                            <span class="stat-footer text-muted">Across active days</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Total Transactions</span>
+                            <div class="stat-value" id="analyticsTxCount">0</div>
+                            <span class="stat-footer text-muted">Recorded so far</span>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Charts Grid -->
+                    <div class="analytics-charts-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Income, Expense & Savings Trend</h3>
+                            </div>
+                            <div class="card-body chart-container-large">
+                                <canvas id="chartAnalyticsTrend"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Category Spending Distribution</h3>
+                            </div>
+                            <div class="card-body chart-container-large">
+                                <canvas id="chartAnalyticsCategoryBar"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. SETTINGS SECTION -->
+                <section id="section-settings" class="page-section">
+                    <div class="settings-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Profile & Preferences</h3>
+                                <p class="card-subtitle">Manage your personal preferences and currency</p>
+                            </div>
+                            <div class="card-body">
+                                <form id="settingsForm">
+                                    <div class="form-group">
+                                        <label for="settingsDisplayName" class="form-label">Display Name</label>
+                                        <input type="text" id="settingsDisplayName" class="form-control" value="User" maxlength="100" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="settingsCurrency" class="form-label">Currency Symbol</label>
+                                        <select id="settingsCurrency" class="form-control form-select">
+                                            <option value="₹">₹ - Indian Rupee (INR)</option>
+                                            <option value="$">$ - US Dollar (USD)</option>
+                                            <option value="€">€ - Euro (EUR)</option>
+                                            <option value="£">£ - British Pound (GBP)</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">System & DevOps Information</h3>
+                                <p class="card-subtitle">Runtime specifications & database status</p>
+                            </div>
+                            <div class="card-body">
+                                <ul class="info-list">
+                                    <li><strong>Architecture:</strong> Flask (Python 3) + MySQL 8.0 + Docker</li>
+                                    <li><strong>Frontend:</strong> Vanilla HTML5, CSS3, Modern JS (ES6+), Chart.js</li>
+                                    <li><strong>Database:</strong> Relational MySQL with connection pooling & prepared statements</li>
+                                    <li><strong>Containerization:</strong> Docker Compose multi-container stack</li>
+                                </ul>
+
+                                <hr class="my-4">
+
+                                <div>
+                                    <h4 class="text-danger mb-2 font-semibold">Demo Data Generator</h4>
+                                    <p class="text-muted text-sm mb-3">Populate realistic test transactions and budgets to demonstrate charts and analytics immediately during presentations.</p>
+                                    <button type="button" class="btn btn-secondary" id="seedDemoDataBtn">Load Realistic Sample Data</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirmation Modal Dialog -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title" id="confirmModalTitle">Confirm Action</h3>
+                <button class="btn-icon" id="confirmModalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="confirmModalCancel">Cancel</button>
+                <button class="btn btn-danger" id="confirmModalConfirm">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
