@@ -10,7 +10,7 @@ EXPENSE_CATEGORIES = [
 ]
 
 INCOME_CATEGORIES = [
-    'Salary', 'Freelance', 'Business', 'Allowance', 'Other'
+    'Salary', 'Freelance', 'Business', 'Allowance', 'Initial Balance', 'Other'
 ]
 
 @transactions_bp.route('', methods=['GET'])

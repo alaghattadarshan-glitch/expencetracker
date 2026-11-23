@@ -42,13 +42,8 @@ CREATE TABLE IF NOT EXISTS budgets (
     INDEX idx_month_year (month, year)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insert default settings row if empty
+-- Insert default settings row if empty (Default user and INR symbol, 0 balance)
 INSERT INTO settings (id, display_name, currency)
-SELECT 1, 'Darshan Prabhu', '₹'
+SELECT 1, 'My Account', '₹'
 WHERE NOT EXISTS (SELECT 1 FROM settings WHERE id = 1);
 
--- Insert initial sample budgets for common categories for current month/year if needed (or starter overall budget)
--- 'Overall' represents monthly total limit
-INSERT INTO budgets (category, monthly_limit, month, year)
-SELECT 'Overall', 50000.00, MONTH(CURRENT_DATE()), YEAR(CURRENT_DATE())
-WHERE NOT EXISTS (SELECT 1 FROM budgets WHERE category = 'Overall' AND month = MONTH(CURRENT_DATE()) AND year = YEAR(CURRENT_DATE()));

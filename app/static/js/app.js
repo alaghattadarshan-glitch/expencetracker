@@ -10,7 +10,7 @@ const EXPENSE_CATEGORIES = [
 ];
 
 const INCOME_CATEGORIES = [
-    'Salary', 'Freelance', 'Business', 'Allowance', 'Other'
+    'Salary', 'Freelance', 'Business', 'Allowance', 'Initial Balance', 'Other'
 ];
 
 // Application State
@@ -390,14 +390,14 @@ function renderIncomeExpenseChart(trends) {
                 {
                     label: 'Income',
                     data: incomeData,
-                    backgroundColor: '#10b981',
-                    borderRadius: 4
+                    backgroundColor: '#1b7a4d',
+                    borderRadius: 2
                 },
                 {
                     label: 'Expenses',
                     data: expenseData,
-                    backgroundColor: '#ef4444',
-                    borderRadius: 4
+                    backgroundColor: '#c0362c',
+                    borderRadius: 2
                 }
             ]
         },
@@ -405,7 +405,7 @@ function renderIncomeExpenseChart(trends) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'top' },
+                legend: { position: 'top', labels: { boxWidth: 12, font: { family: 'Inter', size: 12 } } },
                 tooltip: {
                     callbacks: {
                         label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}`
@@ -415,9 +415,13 @@ function renderIncomeExpenseChart(trends) {
             scales: {
                 y: {
                     beginAtZero: true,
+                    grid: { color: '#f0f2f4' },
                     ticks: {
                         callback: (val) => state.currency + Number(val).toLocaleString('en-IN')
                     }
+                },
+                x: {
+                    grid: { display: false }
                 }
             }
         }
@@ -441,8 +445,8 @@ function renderCategoryDoughnut(categories) {
     const data = categories.map(c => c.total);
 
     const colors = [
-        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-        '#ec4899', '#14b8a6', '#f97316', '#64748b', '#06b6d4'
+        '#22262c', '#636d77', '#1b7a4d', '#c0362c', '#b45309',
+        '#475569', '#334155', '#64748b', '#94a3b8', '#0f172a'
     ];
 
     state.charts.categoryDoughnut = new Chart(canvas, {
@@ -1129,7 +1133,7 @@ function renderAnalyticsCategoryBar(categories) {
 
 function initSettings() {
     const form = document.getElementById('settingsForm');
-    const seedBtn = document.getElementById('seedDemoDataBtn');
+    const clearBtn = document.getElementById('clearAllDataBtn');
 
     if (form) {
         form.addEventListener('submit', async (e) => {
@@ -1157,19 +1161,21 @@ function initSettings() {
         });
     }
 
-    if (seedBtn) {
-        seedBtn.addEventListener('click', async () => {
+    if (clearBtn) {
+        clearBtn.addEventListener('click', async () => {
             showConfirmModal(
-                'Seed Sample Data',
-                'This will add realistic sample transactions and budgets so you can showcase the charts and analytics immediately.',
+                'Clear All Data',
+                'This will erase all recorded transactions and custom budgets, leaving your expense tracker in a clean zero-balance state. Are you sure?',
                 async () => {
                     try {
-                        const res = await fetch('/api/settings/seed-demo', { method: 'POST' });
+                        const res = await fetch('/api/settings/clear-data', { method: 'POST' });
                         const data = await res.json();
-                        if (!res.ok) throw new Error(data.error || 'Failed to seed data');
+                        if (!res.ok) throw new Error(data.error || 'Failed to clear data');
 
-                        showToast('Sample dataset loaded successfully!', 'success');
+                        showToast('All data cleared successfully (Clean State).', 'success');
                         loadDashboard();
+                        loadTransactions();
+                        loadBudgets();
                     } catch (err) {
                         showToast(err.message, 'error');
                     }

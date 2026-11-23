@@ -3,8 +3,7 @@ import unittest
 import requests
 import time
 
-HOST_PORT = os.getenv("HOST_PORT", "5001")
-BASE_URL = f"http://localhost:{HOST_PORT}"
+BASE_URL = os.getenv("TEST_BASE_URL", f"http://localhost:{os.getenv('HOST_PORT', '5001')}")
 
 class ExpenseTrackerEndToEndTestCase(unittest.TestCase):
     """
